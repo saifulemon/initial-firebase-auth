@@ -1,4 +1,4 @@
-import { getAuth, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, signOut, createUserWithEmailAndPassword } from 'firebase/auth'
+import { getAuth, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
 import initializeAuth from './Firebase/firebase.initilize';
 import './App.css'
 import { useState } from 'react';
@@ -12,6 +12,8 @@ function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [user, SetUser] = useState({});
+  const [error, setError] = useState('');
+  const [isLogin, setIsLogin] = useState(false);
 
   const handleGoogleSignIN = () => {
     signInWithPopup(auth, googleProvider)
@@ -50,27 +52,59 @@ function App() {
   }
 
   const handleRegister = e => {
+    e.preventDefault();
     console.log(email, password);
-    createUserWithEmailAndPassword(auth, email, password)
+    if (password.length < 6) {
+      setError('Password Must be at least 6 character long');
+      return;
+    }
+
+    isLogin ? ProccessLogin(email, password) : RegisterNewUser(email, password)
+
+  }
+
+  const ProccessLogin = () => {
+    signInWithEmailAndPassword(auth, email, password)
     .then(result => {
       const user = result.user;
       console.log(user);
+      setError('');
     })
-    e.preventDefault();
+    .catch(error => {
+      setError(error.message);
+    })
+  }
+
+  const RegisterNewUser = (email, password) => {
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(result => {
+        const user = result.user;
+        console.log(user);
+        setError('');
+      })
+      .catch(error => {
+        setError(error.message);
+      })
   }
 
   const handleEmail = e => {
-      setEmail(e.target.value);
+    setEmail(e.target.value);
   }
 
   const handlePassword = e => {
     setPassword(e.target.value);
-}
+  }
+
+  const toggleLogin = e => {
+    setIsLogin(e.target.checked);
+  }
 
   return (
     <div className="mx-5">
       <br />
-      <h3 className="text-primary">Please Register</h3>
+      <h3 className="text-primary">Please {
+        isLogin ? "Log In" : "Register"
+      }</h3>
       <form onSubmit={handleRegister}>
         <div className="row mb-3">
           <label htmlFor="inputEmail3" className="col-sm-2 col-form-label">Email</label>
@@ -87,14 +121,17 @@ function App() {
         <div className="row mb-3">
           <div className="col-sm-10 offset-sm-2">
             <div className="form-check">
-              <input className="form-check-input" type="checkbox" id="gridCheck1" required />
-                <label className="form-check-label" htmlFor="gridCheck1">
-                  Example checkbox
-                </label>
+              <input className="form-check-input" onChange={toggleLogin} type="checkbox" id="gridCheck1" required />
+              <label className="form-check-label" htmlFor="gridCheck1">
+                Already Registered?
+              </label>
             </div>
           </div>
         </div>
-        <button type="submit" className="btn btn-success">Sign in</button>
+        <div className="row mb-3 text-danger">
+          {error}
+        </div>
+        <button type="submit" className="btn btn-success">{isLogin ? "Log In" : "Register"}</button>
       </form>
 
 
