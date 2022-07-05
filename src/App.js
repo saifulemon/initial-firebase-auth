@@ -1,4 +1,4 @@
-import { getAuth, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, updateProfile } from 'firebase/auth'
+import { getAuth, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, updateProfile, FacebookAuthProvider } from 'firebase/auth'
 import initializeAuth from './Firebase/firebase.initilize';
 import './App.css'
 import { useState } from 'react';
@@ -6,6 +6,7 @@ import { useState } from 'react';
 initializeAuth();
 const googleProvider = new GoogleAuthProvider();
 const githubProvider = new GithubAuthProvider();
+const facebookProvider = new FacebookAuthProvider();
 const auth = getAuth();
 
 function App() {
@@ -43,6 +44,20 @@ function App() {
         };
         SetUser(logedInUser)
       })
+  }
+
+  const handleFacebookSignIN = () => {
+    signInWithPopup(auth, facebookProvider)
+    .then(result => {
+      const { displayName, email, photoURL } = result.user;
+      console.log(result.user);
+      const logedInUser = {
+        name: displayName,
+        email: email,
+        img: photoURL
+      };
+      SetUser(logedInUser)
+    })
   }
 
   const handleSignOut = () => {
@@ -174,6 +189,7 @@ function App() {
       <br /><br /><br /><br /><br />
       <button onClick={handleGoogleSignIN}>Google Sign In</button>
       <button onClick={handleGithubSignIN}>Github Sign In</button>
+      <button onClick={handleFacebookSignIN}>Facebook Sign In</button>
       <button onClick={handleSignOut}>Sign Out</button>
 
       <br />
