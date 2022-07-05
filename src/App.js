@@ -1,4 +1,4 @@
-import { getAuth, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { getAuth, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from 'firebase/auth'
 import initializeAuth from './Firebase/firebase.initilize';
 import './App.css'
 import { useState } from 'react';
@@ -59,7 +59,7 @@ function App() {
       return;
     }
 
-    isLogin ? ProccessLogin(email, password) : RegisterNewUser(email, password)
+    isLogin ? ProccessLogin(email, password) : RegisterNewUser(email, password);
 
   }
 
@@ -81,6 +81,7 @@ function App() {
         const user = result.user;
         console.log(user);
         setError('');
+        verifyEmail();
       })
       .catch(error => {
         setError(error.message);
@@ -97,6 +98,13 @@ function App() {
 
   const toggleLogin = e => {
     setIsLogin(e.target.checked);
+  }
+
+  const verifyEmail = () => {
+    sendEmailVerification(auth.currentUser)
+    .then(result => {
+      console.log(result);
+    })
   }
 
   return (
@@ -121,7 +129,7 @@ function App() {
         <div className="row mb-3">
           <div className="col-sm-10 offset-sm-2">
             <div className="form-check">
-              <input className="form-check-input" onChange={toggleLogin} type="checkbox" id="gridCheck1" required />
+              <input className="form-check-input" onChange={toggleLogin} type="checkbox" id="gridCheck1" />
               <label className="form-check-label" htmlFor="gridCheck1">
                 Already Registered?
               </label>
@@ -132,6 +140,7 @@ function App() {
           {error}
         </div>
         <button type="submit" className="btn btn-success">{isLogin ? "Log In" : "Register"}</button>
+        <button type="button" class="btn btn-primary btn-sm">Reset Password</button>
       </form>
 
 
